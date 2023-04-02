@@ -1,2 +1,9 @@
 # script-tools
-some tools hep write scripts
+some tools help write scripts
+
+pack some tools from standard library for more convenient use.
+## feature
+- [ ] ssh
+- [ ] scp
+- [ ] sftp
+- [ ] ftp
