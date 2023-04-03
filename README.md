@@ -15,4 +15,4 @@ pack some tools from standard library for more convenient use.
 
 ## others
 
-- [gorequest](https://github.com/parnurzeal/gorequest) 暂时建议使用，以后再另外开坑
+- [gout](github.com/guonaihong/gout) 推荐使用，不另外开坑写request了
