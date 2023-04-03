@@ -17,7 +17,7 @@ type SSH struct {
 
 func ConnectWithPassword(addr string, user string, password string) (*ssh.Session, error) {
 	return (&SSH{
-		Addr: TryAppendDefaultPort(addr),
+		Addr: tryAppendDefaultPort(addr),
 		Config: &ssh.ClientConfig{
 			User: user,
 			Auth: []ssh.AuthMethod{
@@ -57,7 +57,7 @@ func ConnectWithPrivateKey(addr string, user string, privateKey ...any) (*ssh.Se
 		return nil, err
 	}
 	return (&SSH{
-		Addr: TryAppendDefaultPort(addr),
+		Addr: tryAppendDefaultPort(addr),
 		Config: &ssh.ClientConfig{
 			User: user,
 			Auth: []ssh.AuthMethod{
@@ -77,7 +77,7 @@ func (s *SSH) Connect() (*ssh.Session, error) {
 	return c.NewSession()
 }
 
-func TryAppendDefaultPort(addr string) string {
+func tryAppendDefaultPort(addr string) string {
 	if strings.Contains(addr, ":") {
 		return addr
 	}
