@@ -2,41 +2,56 @@
 package listen
 
 import (
+	"context"
 	"log"
 	"net"
+	"strconv"
 )
 
 type Listener struct {
 	Port     int
-	BuffLen  int
 	CallBack func(conn net.Conn)
+	ctx      context.Context
+	cancel   context.CancelFunc
 }
 
 // Default returns a Listener listening on port 25001
 func Default() *Listener {
+	ctx, cancel := context.WithCancel(context.Background())
 	return &Listener{
 		Port:     25001,
-		BuffLen:  1024,
 		CallBack: nil,
+		ctx:      ctx,
+		cancel:   cancel,
 	}
 }
 
 func (c *Listener) ListenTCP() error {
-	listener, err := net.ListenTCP("tcp", &net.TCPAddr{
-		IP:   net.IP{0, 0, 0, 0},
-		Port: c.Port,
-	})
+	cfg := &net.ListenConfig{}
+	ctx, cancel := context.WithCancel(c.ctx)
+	c.cancel = cancel
+	listener, err := cfg.Listen(ctx, "tcp", ":"+strconv.Itoa(c.Port))
 	if err != nil {
 		return err
 	}
-	for {
-		conn, err := listener.Accept()
-		log.Println("New connection from: ", conn.RemoteAddr().String())
-		if err != nil {
-			log.Println(err)
+	go func() {
+		defer listener.Close()
+		for {
+			select {
+			case <-c.ctx.Done():
+				return
+			default:
+				conn, err := listener.Accept()
+				if err != nil {
+					log.Println(err)
+					continue
+				}
+				log.Println("New connection from: ", conn.RemoteAddr().String())
+				go c.handleConnection(conn)
+			}
 		}
-		go c.handleConnection(conn)
-	}
+	}()
+	return nil
 }
 
 func (c *Listener) handleConnection(conn net.Conn) {
@@ -46,5 +61,11 @@ func (c *Listener) handleConnection(conn net.Conn) {
 	}(conn)
 	if c.CallBack != nil {
 		c.CallBack(conn)
+	}
+}
+
+func (c *Listener) Cancel() {
+	if c.cancel != nil {
+		c.cancel()
 	}
 }
