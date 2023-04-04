@@ -28,9 +28,7 @@ func Default() *Listener {
 
 func (c *Listener) ListenTCP() error {
 	cfg := &net.ListenConfig{}
-	ctx, cancel := context.WithCancel(c.ctx)
-	c.cancel = cancel
-	listener, err := cfg.Listen(ctx, "tcp", ":"+strconv.Itoa(c.Port))
+	listener, err := cfg.Listen(c.ctx, "tcp", ":"+strconv.Itoa(c.Port))
 	if err != nil {
 		return err
 	}

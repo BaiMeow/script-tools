@@ -29,9 +29,9 @@ func ConnectWithPassword(addr string, user string, password string) (*ssh.Sessio
 }
 
 // ConnectWithPrivateKey connects to a remote host using a private key,
-// privateKey should be string or byte slice, if it is a string, it will be treated as a id_rsa_path to the private key file.
+// privateKey should be string or byte slice, if it is a string, it will be treated as an id_rsa_path to the private key file.
 // if it is a byte slice, it will be treated as the private key itself.
-// you can also not to provide privateKey, it will be treated as a id_rsa_path to the private key file, and the id_rsa_path is "~/.ssh/id_rsa" or "%HOME%/.ssh/id_rsa" (on windows).
+// you can also not to provide privateKey, it will be treated as an id_rsa_path to the private key file, and the id_rsa_path is "~/.ssh/id_rsa" or "%HOME%/.ssh/id_rsa" (on windows).
 func ConnectWithPrivateKey(addr string, user string, privateKey ...any) (*ssh.Session, error) {
 	var bytes []byte
 	var err error
