@@ -3,6 +3,7 @@ package listen
 
 import (
 	"context"
+	"github.com/BaiMeow/script-tools/cmd"
 	"log"
 	"net"
 	"strconv"
@@ -10,17 +11,18 @@ import (
 
 type Listener struct {
 	Port     int
-	CallBack func(conn net.Conn)
+	CallBack func(cmd cmd.Commander)
 	ctx      context.Context
 	cancel   context.CancelFunc
 }
 
-// Default returns a Listener listening on port 25001
-func Default() *Listener {
+// Default returns a Listener listening on a random available port.
+// for each connection handler will be called.
+func Default(handler func(cmd cmd.Commander)) *Listener {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &Listener{
-		Port:     25001,
-		CallBack: nil,
+		Port:     0,
+		CallBack: handler,
 		ctx:      ctx,
 		cancel:   cancel,
 	}
@@ -32,6 +34,7 @@ func (c *Listener) ListenTCP() error {
 	if err != nil {
 		return err
 	}
+	log.Println("Listening on: ", listener.Addr().String())
 	go func() {
 		defer listener.Close()
 		for {
@@ -58,7 +61,7 @@ func (c *Listener) handleConnection(conn net.Conn) {
 		log.Println("Connection closed: ", conn.RemoteAddr().String())
 	}(conn)
 	if c.CallBack != nil {
-		c.CallBack(conn)
+		c.CallBack(&Client{conn})
 	}
 }
 
